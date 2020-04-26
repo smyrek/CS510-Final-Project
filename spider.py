@@ -43,7 +43,7 @@ else :
 cur.execute('''SELECT url FROM Webs''')
 webs = list()
 for row in cur:
-    webs.append(bytes(row[0]))
+    webs.append(bytes(row[0],'utf-8'))
 
 print(webs)
 
