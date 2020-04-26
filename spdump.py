@@ -1,6 +1,6 @@
 import sqlite3
 
-conn = sqlite3.connect('spider.sqlite')
+conn = sqlite3.connect('cdc.sqlite')
 cur = conn.cursor()
 
 cur.execute('''SELECT COUNT(from_id) AS inbound, old_rank, new_rank, id, url 

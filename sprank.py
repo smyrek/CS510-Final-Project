@@ -42,7 +42,7 @@ if len(prev_ranks) < 1 :
 # Lets do Page Rank in memory so it is really fast
 for i in range(many):
     # print prev_ranks.items()[:5]
-    next_ranks = dict();
+    next_ranks = dict()
     total = 0.0
     for (node, old_rank) in list(prev_ranks.items()):
         total = total + old_rank

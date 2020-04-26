@@ -87,7 +87,7 @@ while True:
 
         print('('+str(len(html))+')', end=' ')
 
-        soup = BeautifulSoup(html, 'html.parser')
+        soup = BeautifulSoup(html, 'lxml')
     except KeyboardInterrupt:
         print('')
         print('Program interrupted by user...')
