@@ -28,7 +28,7 @@ if row is not None:
     print("Restarting existing crawl.  Remove spider.sqlite to start a fresh crawl.")
 else :
     starturl = input('Enter web url or enter: ')
-    if ( len(starturl) < 1 ) : starturl = 'http://python-data.dr-chuck.net/'
+    if ( len(starturl) < 1 ) : starturl = 'https://www.cdc.gov/coronavirus/2019-ncov/index.html'
     if ( starturl.endswith('/') ) : starturl = starturl[:-1]
     web = starturl
     if ( starturl.endswith('.htm') or starturl.endswith('.html') ) :
@@ -72,11 +72,6 @@ while True:
     # If we are retrieving this page, there should be no links from it
     cur.execute('DELETE from Links WHERE from_id=?', (fromid, ) )
     try:
-        # Deal with SSL certificate anomalies Python > 2.7
-        # scontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-        # document = urllib.urlopen(url, context=scontext)
-
-        # Normal Unless you encounter certificate problems
         document = urllib.request.urlopen(url)
 
         html = document.read()
@@ -84,7 +79,7 @@ while True:
             print("Error on page: ",document.getcode())
             cur.execute('UPDATE Pages SET error=? WHERE url=?', (document.getcode(), url) )
 
-        if 'text/html' != document.info().gettype() :
+        if 'text/html' != document.info().get_content_type() :
             print("Ignore non text/html page")
             cur.execute('UPDATE Pages SET error=-1 WHERE url=?', (url, ) )
             conn.commit()
@@ -92,7 +87,7 @@ while True:
 
         print('('+str(len(html))+')', end=' ')
 
-        soup = BeautifulSoup(html)
+        soup = BeautifulSoup(html, 'html.parser')
     except KeyboardInterrupt:
         print('')
         print('Program interrupted by user...')
@@ -104,7 +99,7 @@ while True:
         continue
 
     cur.execute('INSERT OR IGNORE INTO Pages (url, html, new_rank) VALUES ( ?, NULL, 1.0 )', ( url, ) ) 
-    cur.execute('UPDATE Pages SET html=? WHERE url=?', (buffer(html), url ) )
+    cur.execute('UPDATE Pages SET html=? WHERE url=?', (memoryview(html), url ) )
     conn.commit()
 
     # Retrieve all of the anchor tags
