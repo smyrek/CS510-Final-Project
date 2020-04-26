@@ -1,7 +1,8 @@
 import sqlite3
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import ssl 
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
+from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
 # Deal with SSL certificate anomalies Python > 2.7
@@ -43,7 +44,7 @@ else :
 cur.execute('''SELECT url FROM Webs''')
 webs = list()
 for row in cur:
-    webs.append(bytes(row[0],'utf-8'))
+    webs.append(str(row[0]))
 
 print(webs)
 
@@ -66,7 +67,7 @@ while True:
         many = 0
         break
 
-    print(fromid, url)
+    print(fromid, url, end=' ') 
 
     # If we are retrieving this page, there should be no links from it
     cur.execute('DELETE from Links WHERE from_id=?', (fromid, ) )
@@ -76,7 +77,7 @@ while True:
         # document = urllib.urlopen(url, context=scontext)
 
         # Normal Unless you encounter certificate problems
-        document = urllib.urlopen(url)
+        document = urllib.request.urlopen(url)
 
         html = document.read()
         if document.getcode() != 200 :
@@ -89,11 +90,12 @@ while True:
             conn.commit()
             continue
 
-        print('('+bytes(len(html))+')')
+        print('('+str(len(html))+')', end=' ')
 
         soup = BeautifulSoup(html)
     except KeyboardInterrupt:
-        print('\nProgram interrupted by user...')
+        print('')
+        print('Program interrupted by user...')
         break
     except:
         print("Unable to retrieve or parse page")
@@ -102,7 +104,7 @@ while True:
         continue
 
     cur.execute('INSERT OR IGNORE INTO Pages (url, html, new_rank) VALUES ( ?, NULL, 1.0 )', ( url, ) ) 
-    cur.execute('UPDATE Pages SET html=? WHERE url=?', (memoryview(html), url ) )
+    cur.execute('UPDATE Pages SET html=? WHERE url=?', (buffer(html), url ) )
     conn.commit()
 
     # Retrieve all of the anchor tags
