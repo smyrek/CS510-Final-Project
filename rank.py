@@ -1,6 +1,6 @@
 import sqlite3
 
-conn = sqlite3.connect('spider.sqlite')
+conn = sqlite3.connect('db.sqlite')
 cur = conn.cursor()
 
 # Find the ids that send out page rank - we only are interested
@@ -31,8 +31,8 @@ for node in from_ids:
     prev_ranks[node] = row[0]
 
 sval = input('How many iterations:')
-many = 1
-if ( len(sval) > 0 ) : many = int(sval)
+no = 1
+if ( len(sval) > 0 ) : no = int(sval)
 
 # Sanity check
 if len(prev_ranks) < 1 : 
@@ -40,7 +40,7 @@ if len(prev_ranks) < 1 :
     quit()
 
 # Lets do Page Rank in memory so it is really fast
-for i in range(many):
+for i in range(no):
     # print prev_ranks.items()[:5]
     next_ranks = dict()
     total = 0.0
