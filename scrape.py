@@ -83,10 +83,6 @@ while True:
         print('('+str(len(html))+')', end=' ')
 
         soup = BeautifulSoup(html, 'lxml')
-    except KeyboardInterrupt:
-        print('')
-        print('Program interrupted by user...')
-        break
     except:
         print("Unable to retrieve or parse page")
         cur.execute('UPDATE Pages SET error=-1 WHERE url=?', (url, ) )

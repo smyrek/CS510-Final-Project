@@ -14,7 +14,9 @@ for row in cur:
 to_ids = list()
 links = list()
 cur.execute('''SELECT DISTINCT from_id, to_id FROM Links''')
+n = 1
 for row in cur:
+    print(n)
     from_id = row[0]
     to_id = row[1]
     if from_id == to_id : continue
@@ -22,46 +24,40 @@ for row in cur:
     if to_id not in from_ids : continue
     links.append(row)
     if to_id not in to_ids : to_ids.append(to_id)
+    n += 1
 
 # Get latest page ranks for strongly connected component
 prev_ranks = dict()
 for node in from_ids:
+    print(n)
     cur.execute('''SELECT new_rank FROM Pages WHERE id = ?''', (node, ))
     row = cur.fetchone()
     prev_ranks[node] = row[0]
 
 sval = input('How many iterations:')
-no = 1
-if ( len(sval) > 0 ) : no = int(sval)
+n = 1
+if ( len(sval) > 0 ) : n = int(sval)
 
-# Sanity check
 if len(prev_ranks) < 1 : 
     print("Nothing to page rank.  Check data.")
     quit()
 
-# Lets do Page Rank in memory so it is really fast
-for i in range(no):
-    # print prev_ranks.items()[:5]
+for i in range(n):
     next_ranks = dict()
     total = 0.0
     for (node, old_rank) in list(prev_ranks.items()):
         total = total + old_rank
         next_ranks[node] = 0.0
-    # print total
 
-    # Find the number of outbound links and sent the page rank down each
     for (node, old_rank) in list(prev_ranks.items()):
-        # print node, old_rank
         give_ids = list()
         for (from_id, to_id) in links:
             if from_id != node : continue
-           #  print '   ',from_id,to_id
 
             if to_id not in to_ids: continue
             give_ids.append(to_id)
         if ( len(give_ids) < 1 ) : continue
         amount = old_rank / len(give_ids)
-        # print node, old_rank,amount, give_ids
     
         for id in give_ids:
             next_ranks[id] = next_ranks[id] + amount
@@ -71,7 +67,6 @@ for i in range(no):
         newtot = newtot + next_rank
     evap = (total - newtot) / len(next_ranks)
 
-    # print newtot, evap
     for node in next_ranks:
         next_ranks[node] = next_ranks[node] + evap
 
@@ -90,11 +85,9 @@ for i in range(no):
     avediff = totdiff / len(prev_ranks)
     print(i+1, avediff)
 
-    # rotate
     prev_ranks = next_ranks
 
 # Put the final ranks back into the database
-print(list(next_ranks.items())[:5])
 cur.execute('''UPDATE Pages SET old_rank=new_rank''')
 for (id, new_rank) in list(next_ranks.items()) :
     cur.execute('''UPDATE Pages SET new_rank=? WHERE id=?''', (new_rank, id))
