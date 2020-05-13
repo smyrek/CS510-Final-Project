@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
-conn = sqlite3.connect('db.sqlite')
+conn = sqlite3.connect('test.sqlite')
 cur = conn.cursor()
 
 cur.execute('''CREATE TABLE IF NOT EXISTS Pages 
@@ -20,7 +20,7 @@ cur.execute('''CREATE TABLE IF NOT EXISTS Webs (url TEXT UNIQUE)''')
 cur.execute('SELECT id,url FROM Pages WHERE html is NULL and error is NULL ORDER BY RANDOM() LIMIT 1')
 row = cur.fetchone()
 if row is not None:
-    print("Restarting existing crawl.")
+    print("Restarting.")
 else :
     starturl = input('Enter web url or enter: ')
     if ( len(starturl) == 0 ) : starturl = 'https://www.cdc.gov/coronavirus/2019-ncov/index.html'
